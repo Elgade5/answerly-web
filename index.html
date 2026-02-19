@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answerly - Intelligent Discord Q&A</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                Answerly
+            </a>
+            <div style="display: flex; gap: 1rem;">
+                <!-- Bouton Support dans le header -->
+                <a href="https://discord.gg/VE8zKE5yQf" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-headset"></i> Support
+                </a>
+                <a href="/login" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Automate Your Discord Q&A</h1>
+            <p class="hero-subtitle">
+                Stop answering the same questions repeatedly. Answerly learns your FAQs and responds intelligently when users ask.
+            </p>
+            <!-- Bouton principal pour inviter le bot -->
+            <a href="https://discord.com/oauth2/authorize?client_id=1466911173994614961&permissions=414464724032&scope=bot%20applications.commands" target="_blank" class="btn btn-primary" style="padding: 14px 28px; font-size: 1.1rem;">
+                <i class="fab fa-discord"></i> Invite the Bot
+            </a>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <!-- Showcase Section -->
+    <section class="showcase-section">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p>Simple setup, powerful automation. Manage everything via Discord commands or this web dashboard.</p>
+            
+            <div class="image-row">
+                <img src="{{ url_for('static', filename='image copy.png') }}" alt="Question Command" class="showcase-img" style="max-width: 45%;">
+            </div>
+            <p class="feature-desc" style="margin-bottom: 3rem;">Create questions easily using the <strong>/question</strong> command with interactive modals.</p>
+
+            <div class="image-row">
+                <img src="{{ url_for('static', filename='listquestions.png') }}" alt="List Questions" class="showcase-img" style="max-width: 45%;">
+                <img src="{{ url_for('static', filename='finduplicates.png') }}" alt="Find Duplicates" class="showcase-img" style="max-width: 45%;">
+            </div>
+            <p class="feature-desc">List your database and keep it clean with the powerful <strong>/find-duplicates</strong> tool.</p>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <!-- Features Grid -->
+    <section class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-brain feature-icon"></i>
+                <h3 class="feature-title">Smart Matching</h3>
+                <p class="feature-desc">Fuzzy logic detects questions even with typos, different spacing, or partial sentences. It understands context.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3 class="feature-title">Anti-Spam</h3>
+                <p class="feature-desc">Built-in cooldown system prevents users from spamming questions. 1 hour cooldown per question per user.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-pie feature-icon"></i>
+                <h3 class="feature-title">Usage Statistics</h3>
+                <p class="feature-desc">Track how many times each question is asked. Identify what your users really want to know.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Showcase -->
+    <div class="separator"></div>
+    
+    <section class="showcase-section">
+        <div class="container">
+            <h2>Intelligent Responses</h2>
+            <p>See it in action. The bot recognizes questions naturally.</p>
+            <img src="{{ url_for('static', filename='exemplebot.png') }}" alt="Bot Example" class="showcase-img" style="max-width: 600px;">
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="image-row" style="margin-bottom: 2rem;">
+                <!-- Lien Invite Bot -->
+                <a href="https://discord.com/oauth2/authorize?client_id=1466911173994614961&permissions=414464724032&scope=bot%20applications.commands" target="_blank" class="btn btn-primary">
+                    <i class="fab fa-discord"></i> Invite Bot
+                </a>
+                <!-- Lien Support Server -->
+                <a href="https://discord.gg/VE8zKE5yQf" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-headset"></i> Support Server
+                </a>
+            </div>
+            <p>&copy; 2024 Answerly Bot. Designed for simplicity.</p>
+            <p style="margin-top:10px; font-size: 0.8rem;">Not affiliated with Discord Inc.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

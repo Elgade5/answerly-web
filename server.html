@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Server - Answerly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="/dashboard" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Servers
+            </a>
+            <span class="logo">Manage Questions</span>
+            <div style="width: 120px;"></div>
+        </div>
+    </nav>
+
+    <!-- Container pour les Notifications Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <section class="container" style="padding-top: 3rem;">
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <h2 style="font-size: 1.5rem;">Questions Database</h2>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span class="stats-badge">{{ questions|length }} / 30</span>
+                <button onclick="openModalForCreate()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Question
+                </button>
+            </div>
+        </div>
+
+        <!-- Questions List -->
+        <div class="question-list">
+            {% for q in questions %}
+            <div class="question-item"
+                 data-id="{{ q.id }}"
+                 data-question="{{ q.question|e }}" 
+                 data-answer="{{ q.answer|e }}"
+                 onclick="openModalForEdit(this)">
+                
+                <div>
+                    <div style="font-weight: 600; white-space: pre-wrap;">{{ q.question[:150] }}{% if q.question|length > 150 %}...{% endif %}</div>
+                    <div class="question-meta">
+                        <i class="fas fa-hashtag"></i> {{ q.id }} &bull; <i class="fas fa-chart-line"></i> Used {{ q.times_sent }} times
+                    </div>
+                </div>
+                
+                <i class="fas fa-chevron-right" style="color: var(--text-secondary);"></i>
+            </div>
+            {% else %}
+            <div class="feature-card" style="text-align: center; border-style: dashed;">
+                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h3>No Questions Yet</h3>
+                <p class="feature-desc">Click the "Add Question" button above to get started.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </section>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" style="max-width: 700px;" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 id="modal-title"><i class="fas fa-edit" style="color: var(--primary-color);"></i> Edit Question</h2>
+                <button onclick="closeModal()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <form action="/server/{{ guild_id }}" method="POST" onsubmit="return validateForm()">
+                <input type="hidden" name="id" id="modal-id">
+                
+                <!-- Question Input (Sans Markdown) -->
+                <div class="form-group">
+                    <label class="form-label">Question</label>
+                    <!-- Pas de toolbar ici -->
+                    <textarea name="question" id="modal-question" class="form-textarea" rows="4" required placeholder="Type the user's question here..."></textarea>
+                </div>
+
+                <!-- Answer Input (Avec Markdown) -->
+                <div class="form-group">
+                    <label class="form-label">Answer</label>
+                    <div class="editor-toolbar">
+                        <button type="button" onclick="insertMarkdown('answer', '**')" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button type="button" onclick="insertMarkdown('answer', '*')" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button type="button" onclick="insertMarkdown('answer', '__')" title="Underline"><i class="fas fa-underline"></i></button>
+                        <button type="button" onclick="insertMarkdown('answer', '~~')" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                        <div style="width:1px; background:var(--border-color); margin: 0 5px;"></div>
+                        <button type="button" onclick="insertMarkdownLine('answer', '> ')" title="Quote"><i class="fas fa-quote-left"></i></button>
+                        <button type="button" onclick="insertMarkdown('answer', '||')" title="Spoiler"><i class="fas fa-eye-slash"></i></button>
+                        <button type="button" onclick="insertMarkdown('answer', '`')" title="Code"><i class="fas fa-code"></i></button>
+                    </div>
+                    <textarea name="answer" id="modal-answer" class="form-textarea with-toolbar" rows="6" required placeholder="Type the bot's response here..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% set flashes = get_flashed_messages(with_categories=true) %}
+<script id="flash-data" type="application/json">
+    {{ flashes | tojson }}
+</script>
+
+    <script>
+        // --- GESTION DU MARKDOWN ---
+        
+        function insertMarkdown(fieldId, syntax) {
+            const textarea = document.getElementById('modal-' + fieldId);
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+
+            const newText = text.substring(0, start) + syntax + selectedText + syntax + text.substring(end);
+            
+            textarea.value = newText;
+            textarea.focus();
+            textarea.setSelectionRange(start + syntax.length, end + syntax.length);
+        }
+
+        function insertMarkdownLine(fieldId, syntax) {
+            const textarea = document.getElementById('modal-' + fieldId);
+            const start = textarea.selectionStart;
+            const text = textarea.value;
+            
+            let lineStart = start;
+            while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+                lineStart--;
+            }
+
+            const newText = text.substring(0, lineStart) + syntax + text.substring(lineStart);
+            textarea.value = newText;
+            textarea.focus();
+        }
+
+        // --- GESTION DU MODAL ---
+
+        function openModalForCreate() {
+            document.getElementById('modal-id').value = "";
+            document.getElementById('modal-question').value = "";
+            document.getElementById('modal-answer').value = "";
+            document.getElementById('modal-title').innerHTML = '<i class="fas fa-plus" style="color: var(--primary-color);"></i> New Question';
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function openModalForEdit(element) {
+            document.getElementById('modal-id').value = element.getAttribute('data-id');
+            document.getElementById('modal-question').value = element.getAttribute('data-question');
+            document.getElementById('modal-answer').value = element.getAttribute('data-answer');
+            document.getElementById('modal-title').innerHTML = '<i class="fas fa-edit" style="color: var(--primary-color);"></i> Edit Question';
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'modal-overlay') {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+        }
+
+        // --- GESTION DES NOTIFICATIONS (TOASTS) ---
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-times-circle';
+
+            toast.innerHTML = '<i class="fas ' + icon + '"></i> <span>' + message + '</span>';
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = "slideOutRight 0.3s ease forwards";
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        function validateForm() {
+            const question = document.getElementById('modal-question').value.trim();
+            const answer = document.getElementById('modal-answer').value.trim();
+            
+            if (!question || !answer) {
+                showToast("Question and Answer cannot be empty.", "error");
+                return false;
+            }
+            return true;
+        }
+
+        // Raccourcis clavier (Uniquement pour Answer)
+        document.addEventListener('keydown', function(e) {
+            // On vérifie si on est bien dans le champ Answer
+            if (e.target.id === 'modal-answer') {
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key.toLowerCase()) {
+                        case 'b':
+                            e.preventDefault();
+                            insertMarkdown('answer', '**');
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            insertMarkdown('answer', '*');
+                            break;
+                        case 'u':
+                            e.preventDefault();
+                            insertMarkdown('answer', '__');
+                            break;
+                    }
+                }
+            }
+        });
+
+        // --- FLASH MESSAGES ---
+const flashElement = document.getElementById('flash-data');
+const flashMessages = flashElement
+    ? JSON.parse(flashElement.textContent)
+    : [];
+
+if (flashMessages.length > 0) {
+    window.addEventListener('load', function () {
+        flashMessages.forEach(function (item) {
+            const category = item[0];
+            const message = item[1];
+            showToast(message, category);
+        });
+    });
+}
+
+        
+    </script>
+</body>
+</html>

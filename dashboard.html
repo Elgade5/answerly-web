@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Answerly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                Answerly
+            </a>
+            <a href="/logout" class="btn btn-outline">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <section class="container" style="padding-top: 4rem;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h1 class="hero-title" style="font-size: 2.5rem;">Select a Server</h1>
+            <p class="hero-subtitle">Choose a server to manage its questions and settings.</p>
+        </div>
+
+        <div class="server-grid">
+            {% for server in servers %}
+            
+            <!-- Card Class changes based on bot presence -->
+            <div class="server-card {% if server.bot_present %}managed{% else %}unmanaged{% endif %}">
+                <div class="server-card-header">
+                    {% if server.icon %}
+                    <img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png" class="server-icon">
+                    {% else %}
+                    <div class="server-icon" style="display:flex; align-items:center; justify-content:center; font-size:1.5rem;">{{ server.name[0] }}</div>
+                    {% endif %}
+                    <div class="server-info">
+                        <h3>{{ server.name }}</h3>
+                        <div class="server-status">
+                            {% if server.bot_present %}
+                                <i class="fas fa-check-circle"></i> Active
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Not Added
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="server-card-footer">
+                    {% if server.bot_present %}
+                        <a href="/server/{{ server.id }}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-cog"></i> Manage Questions
+                        </a>
+                    {% else %}
+                        <a href="https://discord.com/oauth2/authorize?client_id={{ bot_id }}&permissions=414464724032&scope=bot%20applications.commands&guild_id={{ server.id }}" target="_blank" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-plus"></i> Add The Bot
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            <div class="feature-card" style="grid-column: 1/-1; text-align: center;">
+                <h3>No servers found</h3>
+                <p class="feature-desc">Make sure you have 'Manage Server' permissions in a server.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</body>
+</html>
