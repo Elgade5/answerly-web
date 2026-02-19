@@ -2,7 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_back.png') }}">
+
+    <!-- Open Graph (aperçu Discord) -->
+    <meta property="og:title" content="Manage Server - Answerly">
+    <meta property="og:description" content="Manage your Discord server questions easily with Answerly Dashboard.">
+    <meta property="og:image" content="https://answerly-ypa0.onrender.com/static/logo.png">
+    <meta property="og:url" content="https://answerly-ypa0.onrender.com/">
+    <meta property="og:type" content="website">
+
     <title>Manage Server - Answerly</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -242,3 +255,4 @@ if (flashMessages.length > 0) {
     </script>
 </body>
 </html>
+
