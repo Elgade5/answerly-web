@@ -19,7 +19,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 DISCORD_CLIENT_ID = os.getenv('BOT_CLIENT_ID')
 DISCORD_CLIENT_SECRET = os.getenv('BOT_CLIENT_SECRET')
 BOT_ID = os.getenv('BOT_ID')
-DISCORD_REDIRECT_URI = 'http://127.0.0.1:5000/callback'
+DISCORD_REDIRECT_URI = 'https://answerly-ypa0.onrender.com/callback'
 DISCORD_API_URL = 'https://discord.com/api/v10'
 
 # Configuration Supabase (via API REST directe)
@@ -195,4 +195,5 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+
     app.run(debug=True, port=5000)
