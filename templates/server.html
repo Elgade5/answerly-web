@@ -50,21 +50,24 @@
         <!-- Questions List -->
         <div class="question-list">
             {% for q in questions %}
-            <div class="question-item"
-                 data-id="{{ q.id }}"
-                 data-question="{{ q.question|e }}" 
-                 data-answer="{{ q.answer|e }}"
-                 onclick="openModalForEdit(this)">
+            
+            <!-- MODIFICATION ICI : Structure flexible pour séparer le texte du bouton delete -->
+            <div class="question-item" data-id="{{ q.id }}" data-question="{{ q.question|e }}" data-answer="{{ q.answer|e }}">
                 
-                <div>
+                <!-- Partie Texte (Clicable pour Edit) -->
+                <div onclick="openModalForEdit(this.parentElement)" style="flex: 1; cursor: pointer; min-width: 0;">
                     <div style="font-weight: 600; white-space: pre-wrap;">{{ q.question[:150] }}{% if q.question|length > 150 %}...{% endif %}</div>
                     <div class="question-meta">
                         <i class="fas fa-hashtag"></i> {{ q.id }} &bull; <i class="fas fa-chart-line"></i> Used {{ q.times_sent }} times
                     </div>
                 </div>
                 
-                <i class="fas fa-chevron-right" style="color: var(--text-secondary);"></i>
+                <!-- Bouton Delete (Icône Poubelle) -->
+                <button class="btn btn-outline" style="margin-left: 15px; color: var(--danger-color); border-color: var(--danger-color); flex-shrink: 0;" onclick="deleteQuestion(event, '{{ q.id }}')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
+
             {% else %}
             <div class="feature-card" style="text-align: center; border-style: dashed;">
                 <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
@@ -87,14 +90,13 @@
             <form action="/server/{{ guild_id }}" method="POST" onsubmit="return validateForm()">
                 <input type="hidden" name="id" id="modal-id">
                 
-                <!-- Question Input (Sans Markdown) -->
+                <!-- Question Input -->
                 <div class="form-group">
                     <label class="form-label">Question</label>
-                    <!-- Pas de toolbar ici -->
                     <textarea name="question" id="modal-question" class="form-textarea" rows="4" required placeholder="Type the user's question here..."></textarea>
                 </div>
 
-                <!-- Answer Input (Avec Markdown) -->
+                <!-- Answer Input -->
                 <div class="form-group">
                     <label class="form-label">Answer</label>
                     <div class="editor-toolbar">
@@ -119,9 +121,9 @@
     </div>
 
     {% set flashes = get_flashed_messages(with_categories=true) %}
-<script id="flash-data" type="application/json">
-    {{ flashes | tojson }}
-</script>
+    <script id="flash-data" type="application/json">
+        {{ flashes | tojson }}
+    </script>
 
     <script>
         // --- GESTION DU MARKDOWN ---
@@ -179,6 +181,31 @@
             }
         }
 
+        // --- NOUVELLE FONCTION DELETE ---
+        function deleteQuestion(event, questionId) {
+            // Empêche le clic de propager vers le parent (ce qui ouvrirait le modal d'édition)
+            event.stopPropagation();
+
+            // Confirmation
+            if (!confirm("Are you sure you want to delete this question? This action cannot be undone.")) {
+                return;
+            }
+
+            // Création d'un formulaire invisible pour envoyer la requête POST
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/server/{{ guild_id }}/delete";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id";
+            input.value = questionId;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         // --- GESTION DES NOTIFICATIONS (TOASTS) ---
 
         function showToast(message, type) {
@@ -214,7 +241,6 @@
 
         // Raccourcis clavier (Uniquement pour Answer)
         document.addEventListener('keydown', function(e) {
-            // On vérifie si on est bien dans le champ Answer
             if (e.target.id === 'modal-answer') {
                 if (e.ctrlKey || e.metaKey) {
                     switch (e.key.toLowerCase()) {
@@ -236,23 +262,18 @@
         });
 
         // --- FLASH MESSAGES ---
-const flashElement = document.getElementById('flash-data');
-const flashMessages = flashElement
-    ? JSON.parse(flashElement.textContent)
-    : [];
+        const flashElement = document.getElementById('flash-data');
+        const flashMessages = flashElement ? JSON.parse(flashElement.textContent) : [];
 
-if (flashMessages.length > 0) {
-    window.addEventListener('load', function () {
-        flashMessages.forEach(function (item) {
-            const category = item[0];
-            const message = item[1];
-            showToast(message, category);
-        });
-    });
-}
-
-        
+        if (flashMessages.length > 0) {
+            window.addEventListener('load', function () {
+                flashMessages.forEach(function (item) {
+                    const category = item[0];
+                    const message = item[1];
+                    showToast(message, category);
+                });
+            });
+        }
     </script>
 </body>
 </html>
-
