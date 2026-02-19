@@ -194,6 +194,26 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+@app.route('/server/<guild_id>/delete', methods=['POST'])
+def delete_question(guild_id):
+    if 'access_token' not in session:
+        return redirect(url_for('index'))
+
+    question_id = request.form.get('id')
+    
+    # URL Supabase pour supprimer la question spécifique
+    delete_url = f"{SUPABASE_URL}/rest/v1/questions?id=eq.{question_id}"
+    
+    try:
+        # On envoie une requête DELETE à Supabase
+        requests.delete(delete_url, headers=SUPABASE_HEADERS)
+        flash('Question deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting question: {str(e)}', 'error')
+
+    return redirect(url_for('server', guild_id=guild_id))
+
 if __name__ == '__main__':
 
     app.run(debug=True, port=5000)
+
