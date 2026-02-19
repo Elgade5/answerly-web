@@ -2,7 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ICI : L'icône de l'onglet (Favicon) -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_back.png') }}">
+    
+    <!-- ICI : Les infos pour Discord / Twitter / Facebook -->
+    <!-- ATTENTION: Remplace l'URL ci-dessous par ta vraie URL Render -->
+    <meta property="og:title" content="Answerly Dashboard">
+    <meta property="og:description" content="Manage your Discord server questions and settings.">
+    <meta property="og:image" content="https://ton-nom-de-site.onrender.com/static/logo.png">
+    <meta property="og:url" content="https://ton-nom-de-site.onrender.com/">
+    <meta property="og:type" content="website">
+    
+    <!-- Couleur du thème -->
+    <meta name="theme-color" content="#5865F2">
+    
+    <!-- Le titre de la page (On garde UN SEUL titre) -->
     <title>Dashboard - Answerly</title>
+    
+    <!-- Les CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -72,5 +91,4 @@
     </section>
 
 </body>
-
 </html>
